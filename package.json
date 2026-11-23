@@ -1,0 +1,48 @@
+{
+  "name": "cordova-sentry",
+  "displayName": "Sentry OutSystems Cordova Plugin",
+  "version": "1.0.0",
+  "main": "www/SentryCordova.js",
+  "scripts": {
+    "test": "node --check www/SentryCordova.js && echo 'Syntax check OK'"
+  },
+  "keywords": [
+    "cordova",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "outsystems",
+    "mabs",
+    "sentry",
+    "crash-reporting",
+    "error-tracking",
+    "observability"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiguelRosaDev/cordova-sentry.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MiguelRosaDev/cordova-sentry/issues"
+  },
+  "engines": {
+    "cordovaDependencies": {
+      "1.0.0": {
+        "cordova": ">=12.0.0",
+        "cordova-android": ">=13.0.0",
+        "cordova-ios": ">=7.1.0"
+      }
+    }
+  },
+  "homepage": "https://github.com/MiguelRosaDev/cordova-sentry#readme",
+  "author": "Miguel Rosa (MiguelRosaDev)",
+  "license": "MIT",
+  "description": "Native Cordova plugin integrating Sentry Error Tracking, Crash Reporting, Breadcrumbs & Performance Tracing for OutSystems 11 (MABS 12 & MABS 13) using Kotlin (Android) and Swift (iOS).",
+  "cordova": {
+    "id": "cordova-sentry",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  }
+}

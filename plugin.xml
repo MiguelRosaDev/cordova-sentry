@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-sentry"
+    version="1.0.0">
+
+    <name>SentryCordova</name>
+    <description>Native Cordova plugin integrating Sentry Error Tracking, Crash Reporting, Breadcrumbs &amp; Performance Tracing for OutSystems 11 (MABS 12 &amp; MABS 13) using Kotlin (Android) and Swift (iOS).</description>
+    <author>Miguel Rosa (MiguelRosaDev)</author>
+    <license>MIT</license>
+    <keywords>cordova,plugin,outsystems,mabs,android,ios,sentry,error-tracking,crash-reporting,observability</keywords>
+    <repo>https://github.com/MiguelRosaDev/cordova-sentry.git</repo>
+
+    <engines>
+        <engine name="cordova" version=">=12.0.0" />
+        <engine name="cordova-android" version=">=13.0.0" />
+        <engine name="cordova-ios" version=">=7.1.0" />
+    </engines>
+
+    <!--
+      Extensibility Configuration variables for automatic native initialization at app startup
+      (enabled by default via SENTRY_AUTO_INITIALIZE="true" and onload="true").
+
+      Pass either a shared DSN (SENTRY_DSN) or separate per-platform DSNs
+      (SENTRY_ANDROID_DSN / SENTRY_IOS_DSN). Platform-specific DSNs take precedence.
+
+      Set SENTRY_AUTO_INITIALIZE="false" only if you prefer initializing manually from JS
+      via cordova.plugins.custom.Sentry.initialize(config, onSuccess, onError).
+    -->
+    <preference name="SENTRY_AUTO_INITIALIZE" default="true" />
+    <preference name="SENTRY_DSN" default="" />
+    <preference name="SENTRY_ANDROID_DSN" default="" />
+    <preference name="SENTRY_IOS_DSN" default="" />
+    <preference name="SENTRY_ENVIRONMENT" default="production" />
+    <preference name="SENTRY_RELEASE" default="" />
+    <preference name="SENTRY_DIST" default="" />
+    <preference name="SENTRY_SAMPLE_RATE" default="1.0" />
+    <preference name="SENTRY_TRACES_SAMPLE_RATE" default="0.0" />
+    <preference name="SENTRY_SEND_DEFAULT_PII" default="false" />
+    <preference name="SENTRY_ENABLE_AUTO_SESSION_TRACKING" default="true" />
+    <preference name="SENTRY_ANR_ENABLED" default="true" />
+    <preference name="SENTRY_ATTACH_SCREENSHOT" default="false" />
+    <preference name="SENTRY_ATTACH_VIEW_HIERARCHY" default="false" />
+    <preference name="SENTRY_MAX_BREADCRUMBS" default="100" />
+    <preference name="SENTRY_DEBUG" default="false" />
+
+    <!--
+      JavaScript interface exposed to the WebView as:
+        cordova.plugins.custom.Sentry
+    -->
+    <js-module src="www/SentryCordova.js" name="SentryCordova">
+        <clobbers target="cordova.plugins.custom.Sentry" />
+    </js-module>
+
+    <!-- ==================== ANDROID (Kotlin) ==================== -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <!-- Enable Kotlin compilation in the generated Cordova Android project -->
+            <preference name="GradlePluginKotlinEnabled" value="true" />
+            <preference name="GradlePluginKotlinCodeStyle" value="official" />
+            <preference name="GradlePluginKotlinVersion" value="1.9.24" />
+
+            <!-- Propagate native auto-initialization preferences to CordovaPreferences -->
+            <preference name="SentryAutoInitialize" value="$SENTRY_AUTO_INITIALIZE" />
+            <preference name="SentryDsn" value="$SENTRY_DSN" />
+            <preference name="SentryAndroidDsn" value="$SENTRY_ANDROID_DSN" />
+            <preference name="SentryEnvironment" value="$SENTRY_ENVIRONMENT" />
+            <preference name="SentryRelease" value="$SENTRY_RELEASE" />
+            <preference name="SentryDist" value="$SENTRY_DIST" />
+            <preference name="SentrySampleRate" value="$SENTRY_SAMPLE_RATE" />
+            <preference name="SentryTracesSampleRate" value="$SENTRY_TRACES_SAMPLE_RATE" />
+            <preference name="SentrySendDefaultPii" value="$SENTRY_SEND_DEFAULT_PII" />
+            <preference name="SentryEnableAutoSessionTracking" value="$SENTRY_ENABLE_AUTO_SESSION_TRACKING" />
+            <preference name="SentryAnrEnabled" value="$SENTRY_ANR_ENABLED" />
+            <preference name="SentryAttachScreenshot" value="$SENTRY_ATTACH_SCREENSHOT" />
+            <preference name="SentryAttachViewHierarchy" value="$SENTRY_ATTACH_VIEW_HIERARCHY" />
+            <preference name="SentryMaxBreadcrumbs" value="$SENTRY_MAX_BREADCRUMBS" />
+            <preference name="SentryDebug" value="$SENTRY_DEBUG" />
+
+            <feature name="SentryCordova">
+                <param name="android-package" value="com.outsystems.plugins.sentry.SentryCordova" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        </config-file>
+
+        <!--
+          Disable SentryInitProvider manifest auto-init so SentryCordova.pluginInitialize()
+          owns initialization cleanly using Cordova Extensibility Configurations (or runtime JS).
+        -->
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <meta-data android:name="io.sentry.auto-init" android:value="false" />
+        </config-file>
+
+        <!-- Official Sentry Android SDK (includes sentry-android-core, NDK & replay) -->
+        <framework src="io.sentry:sentry-android:8.65.1" />
+
+        <source-file
+            src="src/android/SentryCordova.kt"
+            target-dir="app/src/main/kotlin/com/outsystems/plugins/sentry" />
+    </platform>
+
+    <!-- ==================== iOS (Swift — MABS 12 CocoaPods & MABS 13 SPM) ==================== -->
+    <platform name="ios" package="swift">
+        <config-file target="config.xml" parent="/*">
+            <!-- Propagate native auto-initialization preferences to CDVPlugin settings -->
+            <preference name="SentryAutoInitialize" value="$SENTRY_AUTO_INITIALIZE" />
+            <preference name="SentryDsn" value="$SENTRY_DSN" />
+            <preference name="SentryIosDsn" value="$SENTRY_IOS_DSN" />
+            <preference name="SentryEnvironment" value="$SENTRY_ENVIRONMENT" />
+            <preference name="SentryRelease" value="$SENTRY_RELEASE" />
+            <preference name="SentryDist" value="$SENTRY_DIST" />
+            <preference name="SentrySampleRate" value="$SENTRY_SAMPLE_RATE" />
+            <preference name="SentryTracesSampleRate" value="$SENTRY_TRACES_SAMPLE_RATE" />
+            <preference name="SentrySendDefaultPii" value="$SENTRY_SEND_DEFAULT_PII" />
+            <preference name="SentryEnableAutoSessionTracking" value="$SENTRY_ENABLE_AUTO_SESSION_TRACKING" />
+            <preference name="SentryAnrEnabled" value="$SENTRY_ANR_ENABLED" />
+            <preference name="SentryAttachScreenshot" value="$SENTRY_ATTACH_SCREENSHOT" />
+            <preference name="SentryAttachViewHierarchy" value="$SENTRY_ATTACH_VIEW_HIERARCHY" />
+            <preference name="SentryMaxBreadcrumbs" value="$SENTRY_MAX_BREADCRUMBS" />
+            <preference name="SentryDebug" value="$SENTRY_DEBUG" />
+
+            <feature name="SentryCordova">
+                <param name="ios-package" value="SentryCordova" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+
+        <!--
+          MABS 12 (cordova-ios 7): CocoaPods fallback (9.19.1 is the final sentry-cocoa CocoaPods release).
+          Ignored on MABS 13 (cordova-ios 8 / SPM), which uses Package.swift instead.
+        -->
+        <podspec>
+            <config>
+                <source url="https://cdn.cocoapods.org/" />
+            </config>
+            <pods use_frameworks="true">
+                <pod name="Sentry" spec="~> 9.19.1" nospm="true" />
+            </pods>
+        </podspec>
+
+        <source-file src="src/ios/SentryCordova.swift" />
+    </platform>
+</plugin>
